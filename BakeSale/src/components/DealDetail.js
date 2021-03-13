@@ -61,14 +61,15 @@ class DealDetail extends React.Component {
 
 const styles = StyleSheet.create({
     deal: {
-        margin: 15,
+       // margin: 15,
     },
 
     backLink: {
         fontSize: 20,
         marginBottom: 5,
         color: '#22f',
-        marginLeft: 0,
+        marginLeft: 10,
+
     },
 
     image: {
@@ -78,8 +79,8 @@ const styles = StyleSheet.create({
     },
 
     detail: {
-        borderColor: '#bbb',
-        borderWidth: 1,
+       // borderColor: '#bbb',
+        // borderWidth: 1,
     },
 
     info: {
