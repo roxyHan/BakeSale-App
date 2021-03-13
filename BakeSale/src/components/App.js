@@ -69,8 +69,8 @@ class App extends React.Component {
       );
     }
 
-    let dealsToDisplay = 
-      (this.state.dealsFromSearch) > 0
+    const dealsToDisplay = 
+      (this.state.dealsFromSearch).length > 0
         ? this.state.dealsFromSearch
         : this.state.deals;
 
@@ -78,9 +78,8 @@ class App extends React.Component {
       return (
         <View style={styles.main}>
           <SearchBar searchDeals = {this.searchDeals}/>
-
           <DealList 
-            deals={this.state.deals} 
+            deals={dealsToDisplay} 
             onItemPress={this.setCurrentDeal}    
           />
 
