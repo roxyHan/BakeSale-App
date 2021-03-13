@@ -13,21 +13,31 @@ import {
   Text,
  } from 'react-native';
 
- import ajax from '../ajax';
+import ajax from '../ajax';
 import DealDetail from './DealDetail';
- import DealList from './DealList';
+import DealList from './DealList';
+import SearchBar from './SearchBar';
 
 
 class App extends React.Component {
   state = {
     deals: [],
+    dealsFromSearch: [],
     currentDealId: null,
-  }
+  };
  
   async componentDidMount() {
     const deals = await ajax.fetchInitialDeals();
     this.setState({ deals });
   }
+
+  searchDeals = async (searchTerm) => {
+    let dealsFromSearch = [];
+    if (searchTerm) {
+      dealsFromSearch = await ajax.fetchDealsSearchResults(searchTerm);
+    }
+    this.setState({ dealsFromSearch });
+  };
 
   setCurrentDeal = (dealId) => {
     this.setState({
@@ -49,15 +59,33 @@ class App extends React.Component {
 
   render() {
     if (this.state.currentDealId) {
-      return <DealDetail initialDealData={this.currentDeal()}
-                          onBack={this.unsetCurrentDeal} 
-              />
+      return (
+        <View style={styles.main}>
+        <DealDetail
+          initialDealData={this.currentDeal()}
+          onBack={this.unsetCurrentDeal} 
+        />
+        </View>
+      );
     }
-    if (this.state.deals.length > 0) {
-      return <DealList 
-              deals={this.state.deals} 
-              onItemPress={this.setCurrentDeal}    
-    />
+
+    let dealsToDisplay = 
+      (this.state.dealsFromSearch) > 0
+        ? this.state.dealsFromSearch
+        : this.state.deals;
+
+    if (dealsToDisplay.length > 0) {
+      return (
+        <View style={styles.main}>
+          <SearchBar searchDeals = {this.searchDeals}/>
+
+          <DealList 
+            deals={this.state.deals} 
+            onItemPress={this.setCurrentDeal}    
+          />
+
+        </View>
+      );
     }
 
     return (
@@ -79,6 +107,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+
+  main: {
+    marginTop: 30,
   },
 
   header: {
