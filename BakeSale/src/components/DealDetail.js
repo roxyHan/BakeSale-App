@@ -1,18 +1,66 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, PanResponder, Animated, TouchableOpacity} from 'react-native';
 
 import { priceDisplay } from '../util';
 import ajax from '../ajax';
 
 class DealDetail extends React.Component {
+    imageXPos = new Animated.Value(0);
+    imagePanResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderMove: (evt, gs) => {
+            this.imageXPos.setValue(gs.dx);
+        },
+        onPanResponderRelease: (evt, gs) => {
+            this.width = Dimensions.get('window').width;
+            if (Math.abs(gs.dx) > this.width * 0.4) {
+                const direction = Math.sign(gs.dx);
+                // -1 for left and 1 for right
+                // swapping left or right depending on the sign of the direction var
+                Animated.timing(this.imageXPos, {
+                    toValue: direction * this.width,
+                    duration: 250,
+                    useNativeDriver: false,
+                }).start(() => this.handleSwipe(-1 * direction));
+            }
+            else {
+                // swipping less than 40% of the width of the screen, reset the image
+               Animated.spring(this.imageXPos, {
+                   toValue: 0,
+                   useNativeDriver: false,
+                }).start(); 
+            }
+        },
+    });
+
+    handleSwipe = (indexDirection) => {
+        if (!this.state.deal.media[this.state.imageIndex + indexDirection]) {
+            Animated.spring(this.imageXPos, {
+                toValue: 0,
+                useNativeDriver: false,
+            }).start();
+        }
+        this.setState((prevState) => ({
+            imageIndex: prevState.imageIndex + indexDirection
+        }), () => {
+            // Next image animation 
+            this.imageXPos.setValue(indexDirection * this.width);
+            Animated.spring(this.imageXPos, {
+                toValue: 0,
+                useNativeDriver: false,
+            }).start();
+        }
+    )};
+
     static propTypes = {
         initialDealData: PropTypes.object.isRequired,
         onBack: PropTypes.func.isRequired,
     };
     state = {
         deal: this.props.initialDealData,
+        imageIndex: 0,
     };
 
     async componentDidMount() {
@@ -32,8 +80,10 @@ class DealDetail extends React.Component {
                     <Text style={styles.backLink}>Back</Text>
                 </TouchableOpacity>
 
-                <Image source={{ uri: deal.media[0] }}
-                style={styles.image}
+                <Animated.Image
+                 {...this.imagePanResponder.panHandlers}
+                 source={{ uri: deal.media[this.state.imageIndex] }}
+                style={[{ left: this.imageXPos },  styles.image]}
                 />
                 <View style={styles.detail}>
                     <Text style={styles.title}> {deal.title} </Text>
