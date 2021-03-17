@@ -6,7 +6,11 @@
  * @flow strict-local
  */
 
+
 import React from 'react';
+import SplashScreen from 'react-native-splash-screen';
+import BackGroundColor from 'react-native-background-color';
+
 import {
   StyleSheet,
   View,
@@ -22,12 +26,14 @@ import DealList from './DealList';
 import SearchBar from './SearchBar';
 
 
+
 class App extends React.Component {
   titleXPOs = new Animated.Value(0); 
   state = {
     deals: [],
     dealsFromSearch: [],
     currentDealId: null,
+    activeSearchTerm: '',
   };
  
   animateTitle = (direction = 1) => {
@@ -51,6 +57,7 @@ class App extends React.Component {
     this.animateTitle();
     const deals = await ajax.fetchInitialDeals();
     this.setState({ deals });
+    SplashScreen.hide();
   }
 
   searchDeals = async (searchTerm) => {
@@ -58,7 +65,7 @@ class App extends React.Component {
     if (searchTerm) {
       dealsFromSearch = await ajax.fetchDealsSearchResults(searchTerm);
     }
-    this.setState({ dealsFromSearch });
+    this.setState({ dealsFromSearch, activeSearchTerm: searchTerm });
   };
 
   setCurrentDeal = (dealId) => {
@@ -99,7 +106,10 @@ class App extends React.Component {
     if (dealsToDisplay.length > 0) {
       return (
         <View style={styles.main}>
-          <SearchBar searchDeals = {this.searchDeals}/>
+          <SearchBar 
+            searchDeals = {this.searchDeals}
+            initialSearchTerm={this.state.activeSearchTerm}
+          />
           <DealList 
             deals={dealsToDisplay} 
             onItemPress={this.setCurrentDeal}    
@@ -111,7 +121,7 @@ class App extends React.Component {
 
     return (
       <Animated.View style={[{left : this.titleXPOs }, styles.container]} >
-        <Text style={styles.header}>Bakesale</Text>
+       <Text style={styles.header}>Bakesale</Text>
       </Animated.View>
     );
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { View, Text, Image, StyleSheet, Dimensions, PanResponder, Animated, TouchableOpacity} from 'react-native';
+import { View, ScrollView, Text, Image, Button, Linking, StyleSheet, Dimensions, PanResponder, Animated, TouchableOpacity} from 'react-native';
 
 import { priceDisplay } from '../util';
 import ajax from '../ajax';
@@ -70,6 +70,10 @@ class DealDetail extends React.Component {
         });
     }
 
+    openDealUrl= () => {
+        Linking.openURL(this.state.deal.url);
+    }
+
 
 
     render() {
@@ -85,8 +89,10 @@ class DealDetail extends React.Component {
                  source={{ uri: deal.media[this.state.imageIndex] }}
                 style={[{ left: this.imageXPos },  styles.image]}
                 />
-                <View style={styles.detail}>
+                <View>
                     <Text style={styles.title}> {deal.title} </Text>
+                </View>
+                <ScrollView style={styles.detail}>
                     <View style={styles.footer}>
                         <View style={styles.info}>
                             <Text style={styles.cause}> {deal.cause.name} </Text>
@@ -102,7 +108,8 @@ class DealDetail extends React.Component {
                 <View style={styles.description}>
                     <Text>{deal.description}</Text>
                 </View>
-            </View>
+                <Button title="Buy the deal!" onPress={this.openDealUrl}></Button>
+            </ScrollView>
         </View>
 
         );
@@ -111,7 +118,7 @@ class DealDetail extends React.Component {
 
 const styles = StyleSheet.create({
     deal: {
-       // margin: 15,
+        marginBottom: 10,
     },
 
     backLink: {
